@@ -17,10 +17,10 @@ public class TemplateService {
 
     public void createTemplate(TemplateRequestDto requestDto) {
         TemplateRecord record = new TemplateRecord();
-        record.setName("template1");
-        record.setDescription("test1");
-        record.setSenderEmailBody("test1@email.com");
-        record.setSenderEmailSubject("email-subject");
+        record.setName(requestDto.getName());
+        record.setDescription(requestDto.getDescription());
+        record.setSenderEmailBody(requestDto.getSenderEmailBody());
+        record.setSenderEmailSubject(requestDto.getSenderEmailSubject());
         repository.save(record);
     }
 }
