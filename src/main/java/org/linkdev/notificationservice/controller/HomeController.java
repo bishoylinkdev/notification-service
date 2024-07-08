@@ -1,20 +1,26 @@
 package org.linkdev.notificationservice.controller;
 
+import org.linkdev.notificationservice.model.TemplateRecord;
 import org.linkdev.notificationservice.model.TemplateRequestDto;
 import org.linkdev.notificationservice.model.TemplateResponseDto;
+import org.linkdev.notificationservice.repository.TemplateRepository;
+import org.linkdev.notificationservice.service.TemplateService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/template")
 public class HomeController {
 
+    private final TemplateService templateService;
+
+    public HomeController(TemplateService templateService) {
+        this.templateService = templateService;
+    }
+
     @PostMapping
     void createTemplate(@RequestBody TemplateRequestDto requestDto) {
-        String name = requestDto.getName();
-        String description = requestDto.getDescription();
-        String senderEmailAddress = requestDto.getSenderEmailAddress();
-        String insertQuery = String.format("INSERT INTO template (id, name, description)\n" +
-                "VALUES (%s, '%s', '%s')", 1, name, requestDto.getDescription());
+        templateService.createTemplate(requestDto);
     }
 
     @GetMapping("/{templateId}")
