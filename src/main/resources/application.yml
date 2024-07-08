@@ -3,9 +3,9 @@ spring:
     name: notification-service
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/notification_db
-    username: notification_user
-    password: 12345
+    url: jdbc:postgresql://localhost:5432/Template
+    username: postgres
+    password: postgresql2024
     driver-class-name: org.postgresql.Driver
 
   jpa:
