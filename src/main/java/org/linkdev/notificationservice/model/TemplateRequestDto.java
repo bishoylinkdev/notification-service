@@ -7,9 +7,11 @@ import lombok.Setter;
 @Getter
 @Setter
 public class TemplateRequestDto {
+
     private String name;
     private String description;
     private String senderEmailAddress;
     private String senderEmailSubject;
     private String senderEmailBody;
+
 }
