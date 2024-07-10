@@ -12,4 +12,5 @@ public class TemplateRequestDto {
     private String senderEmailAddress;
     private String senderEmailSubject;
     private String senderEmailBody;
+    private String senderMobileNumber;
 }
