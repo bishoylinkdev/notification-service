@@ -9,11 +9,16 @@ import org.linkdev.notificationservice.model.TemplateResponseDto;
 import org.linkdev.notificationservice.repository.TemplateRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.Consumer;
+
+import static org.linkdev.notificationservice.utils.TemplateUtils.validateTemplateRequest;
 
 
 @Service
@@ -29,13 +34,12 @@ public class TemplateService {
     }
 
     public void createTemplate(TemplateRequestDto requestDto) {
-        if (Objects.isNull(requestDto.getName())) {
-            throw new TemplateException(HttpStatus.BAD_REQUEST, TemplateErrorMessages.INVALID_TEMPLATE_REQUEST);
-        }
+        validateTemplateRequest(requestDto);
         TemplateRecord templateRecord = templateMapper.requestDtoToRecord(requestDto);
         repository.save(templateRecord);
     }
 
+    @Transactional
     public TemplateResponseDto getTemplateById(Integer templateId) {
         Optional<TemplateRecord> optional = repository.findById(templateId);
         if (optional.isPresent()) {
@@ -45,9 +49,8 @@ public class TemplateService {
         }
     }
 
+    @Transactional
     public void deleteTemplateById(List<Integer> templateIdsList) {
-        List<Integer> notFoundTemplateIds = new ArrayList<>();
-
         for (Integer templateId : templateIdsList) {
             Optional<TemplateRecord> optional = repository.findById(templateId);
             if (optional.isPresent()) {
@@ -56,5 +59,11 @@ public class TemplateService {
                 throw new TemplateException(HttpStatus.NOT_FOUND, TemplateErrorMessages.TEMPLATE_NOT_FOUND);
             }
         }
+    }
+
+    public List<TemplateResponseDto> getTemplatesList() {
+        List<TemplateRecord> templateRecordList = new ArrayList<>();
+        repository.findAll().forEach(templateRecordList::add);
+        return templateMapper.recordListToResponseDtoList(templateRecordList);
     }
 }

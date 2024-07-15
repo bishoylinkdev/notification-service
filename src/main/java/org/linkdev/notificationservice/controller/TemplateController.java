@@ -2,6 +2,7 @@ package org.linkdev.notificationservice.controller;
 
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.model.TemplateRequestDto;
+import org.linkdev.notificationservice.model.TemplateResponseDto;
 import org.linkdev.notificationservice.service.TemplateService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -38,6 +39,11 @@ public class TemplateController {
         } catch (Exception exception) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(exception.getMessage());
         }
+    }
+
+    @GetMapping
+    ResponseEntity<List<TemplateResponseDto>> getTemplatesList() {
+        return ResponseEntity.ok(templateService.getTemplatesList());
     }
 
     @PutMapping("/{templateId}")
