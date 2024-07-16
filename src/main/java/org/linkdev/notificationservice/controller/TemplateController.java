@@ -1,9 +1,11 @@
 package org.linkdev.notificationservice.controller;
 
 import org.linkdev.notificationservice.exception.TemplateException;
+import org.linkdev.notificationservice.model.TemplatePageResponseDto;
 import org.linkdev.notificationservice.model.TemplateRequestDto;
 import org.linkdev.notificationservice.model.TemplateResponseDto;
 import org.linkdev.notificationservice.service.TemplateService;
+import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +44,10 @@ public class TemplateController {
     }
 
     @GetMapping
-    ResponseEntity<List<TemplateResponseDto>> getTemplatesList() {
-        return ResponseEntity.ok(templateService.getTemplatesList());
+    ResponseEntity<TemplatePageResponseDto> getTemplatesList(@Param("pageSize") Integer pageSize,
+                                                             @Param("pageNumber") Integer pageNumber,
+                                                             @Param("orderBy") String orderBy) {
+        return ResponseEntity.ok(templateService.getTemplatesList(pageSize, pageNumber, orderBy));
     }
 
     @PutMapping("/{templateId}")

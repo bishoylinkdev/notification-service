@@ -3,10 +3,16 @@ package org.linkdev.notificationservice.service;
 import org.linkdev.notificationservice.exception.TemplateErrorMessages;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
+import org.linkdev.notificationservice.model.TemplatePageResponseDto;
 import org.linkdev.notificationservice.model.TemplateRecord;
 import org.linkdev.notificationservice.model.TemplateRequestDto;
 import org.linkdev.notificationservice.model.TemplateResponseDto;
 import org.linkdev.notificationservice.repository.TemplateRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.support.PageableUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -61,9 +67,17 @@ public class TemplateService {
         }
     }
 
-    public List<TemplateResponseDto> getTemplatesList() {
-        List<TemplateRecord> templateRecordList = new ArrayList<>();
-        repository.findAll().forEach(templateRecordList::add);
-        return templateMapper.recordListToResponseDtoList(templateRecordList);
+    public TemplatePageResponseDto getTemplatesList(Integer pageSize, Integer pageNumber, String orderBy) {
+        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(orderBy).ascending());
+        Page<TemplateRecord> templateRecordPage = repository.findAll(pageRequest);
+        TemplatePageResponseDto pageResponseDto = new TemplatePageResponseDto();
+        pageResponseDto.setPageSize(pageSize);
+        pageResponseDto.setPageNumber(pageNumber);
+        pageResponseDto.setTotalElements(templateRecordPage.getTotalElements());
+        List<TemplateRecord> templateRecordList = templateRecordPage.getContent();
+        List<TemplateResponseDto> templateResponseDtoList = templateMapper
+                .recordListToResponseDtoList(templateRecordList);
+        pageResponseDto.setContent(templateResponseDtoList);
+        return pageResponseDto;
     }
 }
