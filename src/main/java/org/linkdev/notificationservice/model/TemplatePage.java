@@ -7,9 +7,9 @@ import java.util.List;
 
 @Getter
 @Setter
-public class TemplatePageResponseDto {
+public class TemplatePage {
     private Integer pageSize;
     private Integer pageNumber;
     private Long totalElements;
-    private List<TemplateResponseDto> content;
+    private List<TemplateResponse> content;
 }

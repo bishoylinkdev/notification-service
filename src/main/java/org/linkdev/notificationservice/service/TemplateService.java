@@ -3,26 +3,20 @@ package org.linkdev.notificationservice.service;
 import org.linkdev.notificationservice.exception.TemplateErrorMessages;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
-import org.linkdev.notificationservice.model.TemplatePageResponseDto;
+import org.linkdev.notificationservice.model.TemplatePage;
 import org.linkdev.notificationservice.model.TemplateRecord;
-import org.linkdev.notificationservice.model.TemplateRequestDto;
-import org.linkdev.notificationservice.model.TemplateResponseDto;
+import org.linkdev.notificationservice.model.TemplateRequest;
+import org.linkdev.notificationservice.model.TemplateResponse;
 import org.linkdev.notificationservice.repository.TemplateRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.support.PageableUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 import static org.linkdev.notificationservice.utils.TemplateUtils.validateTemplateRequest;
 
@@ -39,14 +33,14 @@ public class TemplateService {
         this.templateMapper = templateMapper;
     }
 
-    public void createTemplate(TemplateRequestDto requestDto) {
-        validateTemplateRequest(requestDto);
-        TemplateRecord templateRecord = templateMapper.requestDtoToRecord(requestDto);
+    public void createTemplate(TemplateRequest templateRequest) {
+        validateTemplateRequest(templateRequest);
+        TemplateRecord templateRecord = templateMapper.requestDtoToRecord(templateRequest);
         repository.save(templateRecord);
     }
 
     @Transactional
-    public TemplateResponseDto getTemplateById(Integer templateId) {
+    public TemplateResponse getTemplateById(Integer templateId) {
         Optional<TemplateRecord> optional = repository.findById(templateId);
         if (optional.isPresent()) {
             return templateMapper.recordToResponseDto(optional.get());
@@ -67,17 +61,17 @@ public class TemplateService {
         }
     }
 
-    public TemplatePageResponseDto getTemplatesList(Integer pageSize, Integer pageNumber, String orderBy) {
+    public TemplatePage getTemplatesList(Integer pageSize, Integer pageNumber, String orderBy) {
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by(orderBy).ascending());
         Page<TemplateRecord> templateRecordPage = repository.findAll(pageRequest);
-        TemplatePageResponseDto pageResponseDto = new TemplatePageResponseDto();
+        TemplatePage pageResponseDto = new TemplatePage();
         pageResponseDto.setPageSize(pageSize);
         pageResponseDto.setPageNumber(pageNumber);
         pageResponseDto.setTotalElements(templateRecordPage.getTotalElements());
         List<TemplateRecord> templateRecordList = templateRecordPage.getContent();
-        List<TemplateResponseDto> templateResponseDtoList = templateMapper
+        List<TemplateResponse> templateResponseList = templateMapper
                 .recordListToResponseDtoList(templateRecordList);
-        pageResponseDto.setContent(templateResponseDtoList);
+        pageResponseDto.setContent(templateResponseList);
         return pageResponseDto;
     }
 }

@@ -1,17 +1,24 @@
 package org.linkdev.notificationservice.mapper;
 
-import org.linkdev.notificationservice.model.TemplateRecord;
-import org.linkdev.notificationservice.model.TemplateRequestDto;
-import org.linkdev.notificationservice.model.TemplateResponseDto;
+import org.linkdev.notificationservice.model.*;
 import org.mapstruct.Mapper;
+import org.mapstruct.Mapping;
 
 import java.util.List;
 
 @Mapper(componentModel = "spring")
 public interface TemplateMapper {
-    TemplateRecord requestDtoToRecord(TemplateRequestDto requestDto);
+    TemplateRecord requestDtoToRecord(TemplateRequest requestDto);
 
-    TemplateResponseDto recordToResponseDto(TemplateRecord templateRecord);
+    TemplateResponse recordToResponseDto(TemplateRecord templateRecord);
 
-    List<TemplateResponseDto> recordListToResponseDtoList(List<TemplateRecord> templateRecord);
+    List<TemplateResponse> recordListToResponseDtoList(List<TemplateRecord> templateRecord);
+
+    TemplateRequest requestDTOToTemplateRequest(TemplateRequestDTO templateRequestDTO);
+
+    TemplateResponseDTO responseToResponseDto(TemplateResponse templateResponse);
+
+    List<TemplateResponseDTO> responseListToResponseDtoList(List<TemplateResponse> templateResponse);
+
+    TemplatePageDTO pageToPageDto(TemplatePage templatePage);
 }

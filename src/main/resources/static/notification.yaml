@@ -1,0 +1,143 @@
+openapi: 3.0.3
+info:
+  title: Notification Manager API
+  description: Notification Manager API
+  version: 1.0.0
+servers:
+  - url: 'https'
+tags:
+  - name: Template
+    description: Template API
+paths:
+  /template:
+    post:
+      tags:
+        - Templates
+      summary: add new template (email,sms ,etc..)
+      description: This API used to add new template.
+      operationId: createTemplate
+      requestBody:
+        description: Template data
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRequest'
+        required: true
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      deprecated: false
+    get:
+      tags:
+        - Templates
+      summary: get all templates (email,sms, etc..)
+      description: This API used to get all configured templates.
+      operationId: getTemplates
+      parameters:
+        - name: pageNumber
+          in: query
+          schema:
+            type: integer
+        - name: pageSize
+          in: query
+          schema:
+            type: integer
+        - name: orderBy
+          in: query
+          schema:
+            type: string
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplatePage'
+        400:
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+        500:
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+      deprecated: false
+
+
+
+components:
+  schemas:
+    TemplateRequest:
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        senderEmailAddress:
+          type: string
+        senderEmailSubject:
+          type: string
+        senderEmailBody:
+          type: string
+        senderMobileNumber:
+          type: string
+    TemplatePage:
+      properties:
+        pageSize:
+          type: integer
+        pageNumber:
+          type: integer
+        totalElements:
+          type: integer
+          format: int64
+        content:
+          type: array
+          items:
+            - $ref: '#/components/schemas/TemplateResponse'
+    TemplateResponse:
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        senderEmailAddress:
+          type: string
+        senderEmailSubject:
+          type: string
+        senderEmailBody:
+          type: string
+        senderMobileNumber:
+          type: string
+    ErrorResponse:
+      type: object
+      description: <b>ErrorResponse Detail</b> as a way to carry machine-readable details of errors in a HTTP response to avoid the need to define new error response formats for HTTP APIs <a href="https://tools.ietf.org/html/rfc7807">RFC 7807</a>
+      properties:
+        message:
+          type: string
+          example: name is missing
+        code:
+          type: string
+          example: 11020

@@ -1,9 +1,8 @@
 package org.linkdev.notificationservice.controller;
 
 import org.linkdev.notificationservice.exception.TemplateException;
-import org.linkdev.notificationservice.model.TemplatePageResponseDto;
-import org.linkdev.notificationservice.model.TemplateRequestDto;
-import org.linkdev.notificationservice.model.TemplateResponseDto;
+import org.linkdev.notificationservice.model.TemplatePage;
+import org.linkdev.notificationservice.model.TemplateRequest;
 import org.linkdev.notificationservice.service.TemplateService;
 import org.springframework.data.repository.query.Param;
 import org.springframework.http.HttpStatus;
@@ -12,7 +11,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
+
 @RequestMapping("/template")
 public class TemplateController {
 
@@ -23,7 +22,7 @@ public class TemplateController {
     }
 
     @PostMapping
-    ResponseEntity<Object> createTemplate(@RequestBody TemplateRequestDto requestDto) {
+    ResponseEntity<Object> createTemplate(@RequestBody TemplateRequest requestDto) {
         try {
             templateService.createTemplate(requestDto);
         } catch (TemplateException exception) {
@@ -44,15 +43,15 @@ public class TemplateController {
     }
 
     @GetMapping
-    ResponseEntity<TemplatePageResponseDto> getTemplatesList(@Param("pageSize") Integer pageSize,
-                                                             @Param("pageNumber") Integer pageNumber,
-                                                             @Param("orderBy") String orderBy) {
+    ResponseEntity<TemplatePage> getTemplatesList(@Param("pageSize") Integer pageSize,
+                                                  @Param("pageNumber") Integer pageNumber,
+                                                  @Param("orderBy") String orderBy) {
         return ResponseEntity.ok(templateService.getTemplatesList(pageSize, pageNumber, orderBy));
     }
 
     @PutMapping("/{templateId}")
     void updateTemplateById(@PathVariable("templateId") String templateId,
-                            @RequestBody TemplateRequestDto requestDto) {
+                            @RequestBody TemplateRequest requestDto) {
 
     }
 
