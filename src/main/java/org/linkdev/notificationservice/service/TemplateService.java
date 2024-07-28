@@ -1,5 +1,7 @@
 package org.linkdev.notificationservice.service;
 
+import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.linkdev.notificationservice.exception.TemplateErrorMessages;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
@@ -8,10 +10,13 @@ import org.linkdev.notificationservice.model.TemplateRecord;
 import org.linkdev.notificationservice.model.TemplateRequest;
 import org.linkdev.notificationservice.model.TemplateResponse;
 import org.linkdev.notificationservice.repository.TemplateRepository;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -22,21 +27,36 @@ import static org.linkdev.notificationservice.utils.TemplateUtils.validateTempla
 
 
 @Service
+@Slf4j
 public class TemplateService {
 
     private final TemplateRepository repository;
 
     private final TemplateMapper templateMapper;
 
-    public TemplateService(TemplateRepository repository, TemplateMapper templateMapper) {
+    private final TaskExecutor taskExecutor;
+
+    public TemplateService(TemplateRepository repository, TemplateMapper templateMapper,
+                           TaskExecutor taskExecutor) {
         this.repository = repository;
         this.templateMapper = templateMapper;
+        this.taskExecutor = taskExecutor;
     }
 
+    @Async
     public void createTemplate(TemplateRequest templateRequest) {
+        log.info("service thread is : {}", Thread.currentThread().getName());
         validateTemplateRequest(templateRequest);
         TemplateRecord templateRecord = templateMapper.requestDtoToRecord(templateRequest);
+        saveTemplate(templateRecord);
+    }
+
+    @SneakyThrows
+    private void saveTemplate(TemplateRecord templateRecord) {
+        log.info("saveTemplate thread is : {}", Thread.currentThread().getName());
+        Thread.sleep(5000);
         repository.save(templateRecord);
+        throw new TemplateException(HttpStatus.INTERNAL_SERVER_ERROR, "saveTemplate exception");
     }
 
     @Transactional

@@ -1,5 +1,6 @@
 package org.linkdev.notificationservice.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.linkdev.notificationservice.api.TemplatesApi;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
@@ -8,10 +9,15 @@ import org.linkdev.notificationservice.model.TemplatePageDTO;
 import org.linkdev.notificationservice.model.TemplateRequest;
 import org.linkdev.notificationservice.model.TemplateRequestDTO;
 import org.linkdev.notificationservice.service.TemplateService;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.concurrent.ThreadPoolExecutor;
+
 @RestController
+@Slf4j
 public class TemplateControllerApi implements TemplatesApi {
 
     private final TemplateService templateService;
@@ -25,6 +31,7 @@ public class TemplateControllerApi implements TemplatesApi {
     @Override
     public ResponseEntity<Object> createTemplate(TemplateRequestDTO templateRequestDTO) {
         try {
+            log.info("controller thread is : {}", Thread.currentThread().getName());
             TemplateRequest templateRequest = templateMapper.requestDTOToTemplateRequest(templateRequestDTO);
             templateService.createTemplate(templateRequest);
         } catch (TemplateException exception) {
