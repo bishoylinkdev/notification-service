@@ -5,7 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class TemplateResponseDto {
+public class TemplateResponse {
     private String id;
     private String name;
     private String description;
