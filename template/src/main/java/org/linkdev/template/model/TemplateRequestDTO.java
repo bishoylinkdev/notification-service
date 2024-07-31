@@ -4,16 +4,18 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+
 import lombok.Getter;
 import lombok.Setter;
 
 @Setter
 @Getter
 public class TemplateRequestDTO {
+    private String tempname;
+    private String discription;
+    private String emailAddress;
+    private String emailSubject;
+    private String phone;
+    private String emailBody;
 
-    public String tempname;
-    public String discription;
-    public String EmailAddress;
-    public String EmailBody;
-    public String EmailSubject;
 }

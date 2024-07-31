@@ -6,10 +6,12 @@ import lombok.Setter;
 @Setter
 @Getter
 public class TemplateResponseDTO {
-    private String id;
-    private String name;
-    private String description;
-    private String senderEmailAddress;
-    private String senderEmailSubject;
-    private String senderEmailBody;
+    private int tempid;
+    private String tempname;
+    private String discription;
+    private String EmailAddress;
+    private String EmailSubject;
+    private String Phone;
+    private String EmailBody;
+
 }
