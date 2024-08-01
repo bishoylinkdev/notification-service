@@ -5,11 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.linkdev.notificationservice.exception.TemplateErrorMessages;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
-import org.linkdev.notificationservice.model.TemplatePage;
-import org.linkdev.notificationservice.model.TemplateRecord;
-import org.linkdev.notificationservice.model.TemplateRequest;
-import org.linkdev.notificationservice.model.TemplateResponse;
+import org.linkdev.notificationservice.model.*;
 import org.linkdev.notificationservice.repository.TemplateRepository;
+import org.linkdev.notificationservice.repository.TemplateStateStoreRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
@@ -20,8 +18,10 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import static org.linkdev.notificationservice.utils.TemplateUtils.validateTemplateRequest;
 
@@ -32,32 +32,34 @@ public class TemplateService {
 
     private final TemplateRepository repository;
 
+    private final TemplateStateStoreRepository templateStateStoreRepository;
     private final TemplateMapper templateMapper;
 
-    private final TaskExecutor taskExecutor;
+    private final TemplateServiceAsync templateServiceAsync;
 
-    public TemplateService(TemplateRepository repository, TemplateMapper templateMapper,
-                           TaskExecutor taskExecutor) {
+
+    public TemplateService(TemplateRepository repository, TemplateStateStoreRepository templateStateStoreRepository,
+                           TemplateMapper templateMapper,
+                           TemplateServiceAsync templateServiceAsync) {
         this.repository = repository;
+        this.templateStateStoreRepository = templateStateStoreRepository;
         this.templateMapper = templateMapper;
-        this.taskExecutor = taskExecutor;
+        this.templateServiceAsync = templateServiceAsync;
     }
 
-    @Async
     public void createTemplate(TemplateRequest templateRequest) {
         log.info("service thread is : {}", Thread.currentThread().getName());
         validateTemplateRequest(templateRequest);
+        String templateId = UUID.randomUUID().toString();
         TemplateRecord templateRecord = templateMapper.requestDtoToRecord(templateRequest);
-        saveTemplate(templateRecord);
+        templateRecord.setId(templateId);
+        TemplateStateStoreRecord stateStoreRecord = new TemplateStateStoreRecord();
+        stateStoreRecord.setId(templateId);
+        stateStoreRecord.setTemplateStatus(TemplateStatus.IN_PROGRESS.name());
+        templateStateStoreRepository.save(stateStoreRecord);
+        templateServiceAsync.saveTemplate(templateRecord);
     }
 
-    @SneakyThrows
-    private void saveTemplate(TemplateRecord templateRecord) {
-        log.info("saveTemplate thread is : {}", Thread.currentThread().getName());
-        Thread.sleep(5000);
-        repository.save(templateRecord);
-        throw new TemplateException(HttpStatus.INTERNAL_SERVER_ERROR, "saveTemplate exception");
-    }
 
     @Transactional
     public TemplateResponse getTemplateById(Integer templateId) {
