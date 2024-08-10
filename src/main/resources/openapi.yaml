@@ -1,0 +1,80 @@
+openapi: 3.0.0
+info:
+  title: Template Management API
+  version: 1.0.0
+paths:
+  /templates:
+    get:
+      summary: Get list of templates
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 0
+          description: Page number
+        - in: query
+          name: size
+          schema:
+            type: integer
+            default: 10
+          description: Page size
+      responses:
+        '200':
+          description: A list of templates
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TemplateResponseDto'
+    post:
+      summary: Create a new template
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TemplateRequestDto'
+      responses:
+        '201':
+          description: Template created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateResponseDto'
+components:
+  schemas:
+    TemplateRequestDto:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        sender_email_address:
+          type: string
+        sender_email_body:
+          type: string
+        sender_email_subject:
+          type: string
+      required:
+        - name
+        - sender_email_address
+        - sender_email_body
+        - sender_email_subject
+    TemplateResponseDto:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        description:
+          type: string
+        sender_email_address:
+          type: string
+        sender_email_body:
+          type: string
+        sender_email_subject:
+          type: string
