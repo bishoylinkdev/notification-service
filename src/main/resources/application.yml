@@ -15,5 +15,12 @@ spring:
       ddl-auto: update
     show-sql: true
 
+  kafka:
+    bootstrap-servers: http://localhost:9092
+    consumer:
+      bootstrap-servers: http://localhost:9092
+      group-id: notification-group
+      notification-topic: notification
+
 server:
   port: 8080

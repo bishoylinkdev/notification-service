@@ -1,7 +1,9 @@
 package org.linkdev.notificationservice.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.linkdev.notificationservice.exception.TemplateErrorMessages;
 import org.linkdev.notificationservice.exception.TemplateException;
 import org.linkdev.notificationservice.mapper.TemplateMapper;
@@ -9,11 +11,13 @@ import org.linkdev.notificationservice.model.*;
 import org.linkdev.notificationservice.repository.TemplateRepository;
 import org.linkdev.notificationservice.repository.TemplateStateStoreRepository;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.task.TaskExecutor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -37,27 +41,34 @@ public class TemplateService {
 
     private final TemplateServiceAsync templateServiceAsync;
 
+    private final KafkaTemplate<String, String> kafkaTemplate;
+
+    private final String topicName;
 
     public TemplateService(TemplateRepository repository, TemplateStateStoreRepository templateStateStoreRepository,
                            TemplateMapper templateMapper,
-                           TemplateServiceAsync templateServiceAsync) {
+                           TemplateServiceAsync templateServiceAsync,
+                           KafkaTemplate<String, String> kafkaTemplate,
+                           @Value(value = "${spring.kafka.consumer.notification-topic}") String topicName) {
         this.repository = repository;
         this.templateStateStoreRepository = templateStateStoreRepository;
         this.templateMapper = templateMapper;
         this.templateServiceAsync = templateServiceAsync;
+        this.kafkaTemplate = kafkaTemplate;
+        this.topicName = topicName;
     }
 
+    @SneakyThrows
     public void createTemplate(TemplateRequest templateRequest) {
         log.info("service thread is : {}", Thread.currentThread().getName());
         validateTemplateRequest(templateRequest);
         String templateId = UUID.randomUUID().toString();
         TemplateRecord templateRecord = templateMapper.requestDtoToRecord(templateRequest);
         templateRecord.setId(templateId);
-        TemplateStateStoreRecord stateStoreRecord = new TemplateStateStoreRecord();
-        stateStoreRecord.setId(templateId);
-        stateStoreRecord.setTemplateStatus(TemplateStatus.IN_PROGRESS.name());
-        templateStateStoreRepository.save(stateStoreRecord);
-        templateServiceAsync.saveTemplate(templateRecord);
+        ObjectMapper objectMapper = new ObjectMapper();
+        String jsonTemplateRequest = objectMapper.writeValueAsString(templateRecord);
+        ProducerRecord<String, String> producerRecord = new ProducerRecord<>(topicName, jsonTemplateRequest);
+        kafkaTemplate.send(producerRecord);
     }
 
 
